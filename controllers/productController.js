@@ -55,3 +55,39 @@ export async function deleteProduct(req, res) {
     res.status(500).json({ error: "Error deleting product" });
   }
 }
+
+export async function updateProduct(req, res) {
+  if (!isAdmin(req, res)) {
+    res
+      .status(403)
+      .json({ error: "you are not authorized to update a product" });
+    return;
+  }
+  try {
+    const updatedProduct = await Product.findOneAndUpdate(
+      // UpdateOne you can use to update a single document
+      { productId: req.params.productId },
+      req.body,
+      { new: true }
+    );
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ error: "Error updating product" });
+  }
+}
+
+export async function getProductById(req, res) {
+  try {
+    const product = await Product.findOne({
+      productId: req.params.productId,
+    });
+    res.json(product);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ error: "Error fetching product" });
+  }
+}
